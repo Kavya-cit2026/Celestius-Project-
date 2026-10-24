@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="CIT ClubSphere — an independent student prototype for discovering clubs and campus activities at Chennai Institute of Technology." />
+  <title>CIT ClubSphere</title>
+
+  <!-- Apply the saved theme before the page paints, so there is no flash of the wrong theme -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("clubsphere-theme");
+        if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+      } catch (e) { /* storage blocked: keep the default dark theme */ }
+    })();
+  </script>
+
+  <!-- Fonts (optional). If offline, the CSS falls back to system sans-serif fonts. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============ SVG ICON SPRITE (inline, so icons work offline) ============ -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9.5" y="9.5" width="5" height="5" fill="currentColor"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-mask" viewBox="0 0 24 24"><path d="M4 5c5 2 11 2 16 0v6a8 8 0 0 1-16 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 10.5h2M13.5 10.5h2M9 15c1.8 1.4 4.2 1.4 6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2l2.2 6.3L20.5 10.5l-6.3 2.2L12 19l-2.2-6.3L3.5 10.5l6.3-2.2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M19 17v4M17 19h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 6v12" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m3.5 6 8.5 7 8.5-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5Z M3 13l9 5 9-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ NAVIGATION ============ -->
+  <header class="site-header" id="siteHeader">
+    <nav class="nav container" aria-label="Main">
+      <a class="logo" href="#home" aria-label="CIT ClubSphere home">
+        <span class="logo__mark" aria-hidden="true">CIT</span>
+        <span class="logo__word">Club<span>Sphere</span></span>
+      </a>
+
+      <ul class="nav__links" id="navLinks">
+        <li><a class="nav__link" href="#home" data-section="home">Home</a></li>
+        <li><a class="nav__link" href="#events" data-section="events">Explore Events</a></li>
+        <li><a class="nav__link" href="#clubs" data-section="clubs">Discover Clubs</a></li>
+        <li><a class="nav__link" href="#calendar" data-section="calendar">Event Calendar</a></li>
+        <li><a class="nav__link" href="#about" data-section="about">About</a></li>
+        <li class="nav__mobile-cta"><a class="btn btn--primary btn--block" href="#events">Explore Events</a></li>
+      </ul>
+
+      <div class="nav__actions">
+        <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch to light mode">
+          <svg class="icon icon--sun"><use href="#i-sun"/></svg>
+          <svg class="icon icon--moon"><use href="#i-moon"/></svg>
+        </button>
+        <a class="btn btn--primary nav__cta" href="#events">Explore Events</a>
+        <button class="icon-btn nav__toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+          <svg class="icon"><use href="#i-menu"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="home" aria-labelledby="heroTitle">
+      <div class="hero__bg" aria-hidden="true">
+        <span class="blob blob--violet"></span>
+        <span class="blob blob--cyan"></span>
+        <span class="blob blob--magenta"></span>
+        <span class="hero__grid"></span>
+      </div>
+
+      <div class="container hero__inner">
+        <div class="hero__copy">
+          <p class="eyebrow"><span class="eyebrow__dot"></span>Chennai Institute of Technology · Student prototype</p>
+          <h1 class="hero__title" id="heroTitle">
+            Your Campus. <span class="text-gradient">Your Community.</span> Your Next Big Thing.
+          </h1>
+          <p class="hero__lead">Discover the clubs, competitions, creative communities, and campus experiences that make Chennai Institute of Technology extraordinary.</p>
+          <div class="hero__ctas">
+            <a class="btn btn--primary btn--lg" href="#events">Explore Events <svg class="icon"><use href="#i-arrow-right"/></svg></a>
+            <a class="btn btn--ghost btn--lg" href="#clubs">Discover Clubs</a>
+          </div>
+
+          <!-- Counts are calculated from the clubs listed on this site, not official figures -->
+          <ul class="hero__strip" id="heroStrip" aria-label="Club categories listed on ClubSphere">
+            <li><a href="#clubs" data-club-filter-link="technical"><svg class="icon"><use href="#i-cpu"/></svg><span><strong data-count="technical">–</strong> Technical Clubs</span></a></li>
+            <li><a href="#clubs" data-club-filter-link="non-technical"><svg class="icon"><use href="#i-mask"/></svg><span><strong data-count="non-technical">–</strong> Non-Technical Clubs</span></a></li>
+            <li><a href="#clubs" data-club-filter-link="interdisciplinary"><svg class="icon"><use href="#i-layers"/></svg><span><strong data-count="interdisciplinary">–</strong> Interdisciplinary Clubs</span></a></li>
+          </ul>
+          <p class="hero__strip-note">Counts reflect clubs currently listed on ClubSphere.</p>
+        </div>
+
+        <!-- Floating card composition (filled by script.js) -->
+        <div class="hero__visual" aria-label="Featured activity highlight">
+          <div class="orbit orbit--1" aria-hidden="true"></div>
+          <div class="orbit orbit--2" aria-hidden="true"></div>
+          <div class="float-card float-card--main" id="heroFeatured"></div>
+          <div class="float-card float-card--chip float-card--a" aria-hidden="true">
+            <svg class="icon"><use href="#i-cpu"/></svg><span>AI · Research · Analytics</span>
+          </div>
+          <div class="float-card float-card--chip float-card--b" aria-hidden="true">
+            <svg class="icon"><use href="#i-mask"/></svg><span>Theatre · Dance · Music</span>
+          </div>
+          <div class="float-card float-card--chip float-card--c" aria-hidden="true">
+            <svg class="icon"><use href="#i-spark"/></svg><span>Design × Technology</span>
+          </div>
+          <pre class="code-snippet" aria-hidden="true"><span class="k">const</span> next = clubs
+  .<span class="f">filter</span>(you.<span class="f">loves</span>)
+  .<span class="f">join</span>();</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVENT DISCOVERY ============ -->
+    <section class="section" id="events" aria-labelledby="eventsTitle">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Explore Events</p>
+          <h2 class="section__title" id="eventsTitle">Find Your Next Campus Experience</h2>
+          <p class="section__lead">From coding competitions to cultural performances, discover something worth showing up for.</p>
+        </header>
+
+        <div class="notice reveal" role="note">
+          <svg class="icon"><use href="#i-info"/></svg>
+          <p>The activities below are <strong>past activities</strong> supplied for each club. No upcoming dates, venues or registrations have been confirmed. Always check official college and club announcements.</p>
+        </div>
+
+        <!-- Toolbar: search, club filter, sort -->
+        <div class="toolbar reveal">
+          <label class="field field--search">
+            <span class="sr-only">Search events by name or club</span>
+            <svg class="icon"><use href="#i-search"/></svg>
+            <input type="search" id="eventSearch" placeholder="Search events or clubs…" autocomplete="off" />
+          </label>
+          <label class="field field--select">
+            <span class="sr-only">Filter by club</span>
+            <select id="eventClubFilter"><option value="all">All clubs</option></select>
+          </label>
+          <label class="field field--select">
+            <span class="sr-only">Sort events</span>
+            <select id="eventSort">
+              <option value="az">Sort: A → Z</option>
+              <option value="za">Sort: Z → A</option>
+              <option value="club">Sort: By club</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="chips reveal" id="eventFilters" role="group" aria-label="Filter events by category"></div>
+
+        <p class="results-count" id="eventCount" aria-live="polite"></p>
+        <div class="event-grid" id="eventGrid"></div>
+
+        <div class="empty-state" id="eventEmpty" hidden>
+          <svg class="icon"><use href="#i-search"/></svg>
+          <h3>No events match your search</h3>
+          <p>Try a different keyword, pick another category, or reset the filters.</p>
+          <button class="btn btn--ghost" type="button" id="eventReset">Reset filters</button>
+        </div>
+
+        <div class="center">
+          <button class="btn btn--ghost" type="button" id="showMore" hidden>Show more events</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATURED ============ -->
+    <section class="section section--alt" id="featured" aria-labelledby="featuredTitle">
+      <div class="container">
+        <header class="section__head section__head--row reveal">
+          <div>
+            <p class="eyebrow">Featured</p>
+            <h2 class="section__title" id="featuredTitle">Activities that defined the season</h2>
+            <p class="section__lead">A look back at past activities associated with CIT clubs. These are shown for reference — not as upcoming events.</p>
+          </div>
+          <div class="carousel-controls">
+            <button class="icon-btn" type="button" id="featPrev" aria-label="Scroll featured activities left"><svg class="icon"><use href="#i-chevron-left"/></svg></button>
+            <button class="icon-btn" type="button" id="featNext" aria-label="Scroll featured activities right"><svg class="icon"><use href="#i-chevron-right"/></svg></button>
+          </div>
+        </header>
+        <div class="featured-track" id="featuredTrack" tabindex="0" aria-label="Featured past activities"></div>
+        <div class="center">
+          <a class="btn btn--primary" href="#events">Explore All Events <svg class="icon"><use href="#i-arrow-right"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CLUB DIRECTORY ============ -->
+    <section class="section" id="clubs" aria-labelledby="clubsTitle">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Discover Clubs</p>
+          <h2 class="section__title" id="clubsTitle">Find Your People</h2>
+          <p class="section__lead">Explore the communities where ideas grow, skills evolve, and friendships begin.</p>
+        </header>
+
+        <div class="toolbar toolbar--clubs reveal">
+          <div class="chips" id="clubFilters" role="group" aria-label="Filter clubs by category"></div>
+          <label class="field field--search">
+            <span class="sr-only">Search clubs</span>
+            <svg class="icon"><use href="#i-search"/></svg>
+            <input type="search" id="clubSearch" placeholder="Search clubs…" autocomplete="off" />
+          </label>
+        </div>
+
+        <div id="clubGroups"></div>
+
+        <div class="empty-state" id="clubEmpty" hidden>
+          <svg class="icon"><use href="#i-users"/></svg>
+          <h3>No clubs found</h3>
+          <p>Try another name or category.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CALENDAR / TIMELINE ============ -->
+    <section class="section section--alt" id="calendar" aria-labelledby="calendarTitle">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Event Calendar</p>
+          <h2 class="section__title" id="calendarTitle">Campus Activity Timeline</h2>
+          <p class="section__lead">No official dates have been supplied yet, so instead of inventing a calendar, activities are grouped by status and club. Dated events will appear under “Upcoming” once confirmed.</p>
+        </header>
+
+        <div class="chips reveal" id="timelineFilters" role="group" aria-label="Filter timeline by status"></div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <!-- ============ MY REGISTRATIONS ============ -->
+    <section class="section" id="registrations" aria-labelledby="regTitle">
+      <div class="container reg-desk reveal">
+        <div class="reg-desk__intro">
+          <p class="eyebrow">Registration Desk</p>
+          <h2 class="section__title" id="regTitle">Your registrations</h2>
+          <p class="section__lead">Registrations you make here are saved <strong>only in this browser</strong> using localStorage. They are not sent to organisers, the college, or any server — this is a frontend prototype.</p>
+          <button class="btn btn--primary" type="button" id="openRegister"><svg class="icon"><use href="#i-ticket"/></svg> Start a registration</button>
+        </div>
+        <div class="reg-desk__list">
+          <div class="reg-list__head">
+            <h3>Saved in this browser</h3>
+            <button class="btn btn--text" type="button" id="clearRegs" hidden><svg class="icon"><use href="#i-trash"/></svg> Clear all</button>
+          </div>
+          <ul class="reg-list" id="regList"></ul>
+          <p class="reg-empty" id="regEmpty">No registrations yet. Open an event with registration available to try the flow.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="section section--alt" id="about" aria-labelledby="aboutTitle">
+      <div class="container about">
+        <div class="about__copy reveal">
+          <p class="eyebrow">About</p>
+          <h2 class="section__title" id="aboutTitle">One Campus. Countless Ways to Belong.</h2>
+          <p>CIT ClubSphere is a centralized discovery platform concept designed to bring the clubs and event experiences of Chennai Institute of Technology together. Whether you enjoy coding, AI, design, theatre, dance, music, writing, or interdisciplinary innovation, the platform helps you discover communities that match your interests.</p>
+          <div class="disclaimer">
+            <svg class="icon"><use href="#i-info"/></svg>
+            <p><strong>Independent student project.</strong> ClubSphere is a prototype and is not an official Chennai Institute of Technology platform. It is not endorsed by the college or by any club listed here.</p>
+          </div>
+        </div>
+        <ul class="about__pillars reveal">
+          <li><svg class="icon"><use href="#i-search"/></svg><h3>Discover</h3><p>Search activities and clubs by name, category, or interest.</p></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><h3>Belong</h3><p>Learn what each community is about before you show up.</p></li>
+          <li><svg class="icon"><use href="#i-ticket"/></svg><h3>Register</h3><p>Try the registration flow — saved locally, never shared.</p></li>
+          <li><svg class="icon"><use href="#i-lock"/></svg><h3>Honest data</h3><p>No invented dates, venues, numbers or endorsements.</p></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ NEWSLETTER ============ -->
+    <section class="section section--tight" aria-labelledby="newsTitle">
+      <div class="container">
+        <div class="newsletter reveal">
+          <div>
+            <h2 class="newsletter__title" id="newsTitle">Never miss a campus moment</h2>
+            <p>Prototype only: no mailing list is connected, and your email is not stored or sent anywhere.</p>
+          </div>
+          <form class="newsletter__form" id="newsletterForm" novalidate>
+            <label class="field">
+              <span class="sr-only">Email address</span>
+              <svg class="icon"><use href="#i-mail"/></svg>
+              <input type="email" id="newsletterEmail" placeholder="you@college.edu" autocomplete="email" aria-describedby="newsletterMsg" />
+            </label>
+            <button class="btn btn--primary" type="submit">Notify me</button>
+            <p class="form-msg" id="newsletterMsg" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <a class="logo" href="#home" aria-label="CIT ClubSphere home">
+          <span class="logo__mark" aria-hidden="true">CIT</span>
+          <span class="logo__word">Club<span>Sphere</span></span>
+        </a>
+        <p>A student-built discovery platform concept for the clubs and campus experiences of Chennai Institute of Technology.</p>
+      </div>
+      <nav aria-label="Footer quick links">
+        <h3>Explore</h3>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#events">Explore Events</a></li>
+          <li><a href="#clubs">Discover Clubs</a></li>
+          <li><a href="#calendar">Event Calendar</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Footer club categories">
+        <h3>Club categories</h3>
+        <ul>
+          <li><a href="#clubs" data-club-filter-link="technical">Technical Clubs</a></li>
+          <li><a href="#clubs" data-club-filter-link="non-technical">Non-Technical Clubs</a></li>
+          <li><a href="#clubs" data-club-filter-link="interdisciplinary">Interdisciplinary Clubs</a></li>
+        </ul>
+      </nav>
+      <div class="footer__note">
+        <h3>Please note</h3>
+        <p>Event details on this site should be verified through official college or club announcements. Registrations are stored only in your browser.</p>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>© <span id="year">2026</span> CIT ClubSphere · Independent student prototype. Not affiliated with or endorsed by Chennai Institute of Technology.</p>
+    </div>
+  </footer>
+
+  <!-- Scroll-to-top -->
+  <button class="scroll-top" id="scrollTop" type="button" aria-label="Scroll to top"><svg class="icon"><use href="#i-arrow-up"/></svg></button>
+
+  <!-- Modal (content is rendered by script.js for clubs, events and registration) -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal__backdrop" data-close-modal></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
+      <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close dialog"><svg class="icon"><use href="#i-close"/></svg></button>
+      <div class="modal__content" id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
